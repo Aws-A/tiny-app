@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <!-- Bootstrap CSS -->
+    <link
+    rel="stylesheet"
+    href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+    crossorigin="anonymous"
+  />
+
+    <title>register</title>
+  </head>
+  <body>
+
+    <%- include ('partials/_header')%>
+    
+    <form method="POST" action="/register" style="margin-left:  5%; margin-top: 5%;">
+
+      <h3> Create Account </h3>
+    
+    <label> Email Address </label> 
+
+    <br>
+
+    <input name="email" type="email" placeholder="Enter Email"/>
+
+    <br>
+
+    <label style="margin-top: 1%;"> Password </label> 
+
+    <br>
+    
+    <input name="password" type="password" placeholder="Password" />
+
+    <br>
+
+    <button name="register" style="margin-top: 1%;"> Register </button>
+
+    </form>
+  </body>
+</html>
