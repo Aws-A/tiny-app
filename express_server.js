@@ -28,7 +28,11 @@ const usersDatabase = {};
 const urlDatabase = {};
 
 app.get("/", function(req,res){
-  res.send("Hello World!");
+  if (req.session.user_id) {
+    res.redirect("/urls");
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -57,11 +61,9 @@ app.get("/urls/new", (req, res) => {
 
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
   const newId = generateRandomString();
   urlDatabase[newId] = req.body.longURL;
-  console.log(urlDatabase);
-  res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
+  res.redirect("/urls");
 });
 
 // Editing URL
@@ -69,12 +71,15 @@ app.post("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const idUser = Number(req.session.user_id);
   const user = usersDatabase[idUser];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user };
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id], 
+    user 
+  };
   res.render("urls_show", templateVars);
 });
 
 app.post("/urls/:id", (req, res) => {
-  console.log("updateURL",);
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls");
 });
@@ -89,8 +94,9 @@ app.post("/urls/:id/delete", (req, res) => {
 //Home Page
 app.get('/', (req, res) => {
   const idUser = req.session.user_id;
-  console.log('id User: ', idUser);
-  if (!idUser) return res.render('index', {user: false});
+  if (!idUser) {
+    return res.render('index', {user: false});
+  }
   
   return res.render('index', {userObject});
 
@@ -100,28 +106,25 @@ app.get('/', (req, res) => {
 
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
-    if (email && password) {
-      const user = getUserByEmail(email, usersDatabase);
-      const hashedPassword = bcrypt.hashSync(password, 10);
-      console.log("secured Password", hashedPassword);
-      console.log("this is email ", email);
-      console.log("this is password ", password);
-      if (user) {
-        return res.send("You already have an account!");
-      }
-      const userId = generateRandomString();
-      const newUser = {
-        id: userId,
-        email,
-        password: hashedPassword
-      }
-        usersDatabase[userId] = newUser;
-        req.session.user_id = userId;
-        res.redirect('/urls');
-    } else {
-      const errorMessage = 'Empty username or password. Please make sure you fill out both fields.';
-      return res.send(errorMessage);
+  if (email && password) {
+    const user = getUserByEmail(email, usersDatabase);
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    if (user) {
+      return res.send("You already have an account!");
     }
+    const userId = generateRandomString();
+    const newUser = {
+      id: userId,
+      email,
+      password: hashedPassword
+    }
+    usersDatabase[userId] = newUser;
+    req.session.user_id = userId;
+    res.redirect('/urls');
+  } else {
+    const errorMessage = 'Empty username or password. Please make sure you fill out both fields.';
+    return res.send(errorMessage);
+  }
 });
 
 app.get("/register", (req, res) => {
@@ -178,6 +181,5 @@ app.listen(PORT, () => {
 // Creating unique Id
 function generateRandomString() {
   let r = (Math.random() + 1).toString(36).substring(6);
-console.log("random", r);
-return r;
+  return r;
 }
