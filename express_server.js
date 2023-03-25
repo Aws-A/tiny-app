@@ -39,48 +39,74 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+//Function that will accept a userId and then it actually goes through
+// all the urls and then create a resultant object with urls belonging to that user
+const urlsUser = function (idUser) {
+  let results = {};
+  for (let key in urlDatabase) {
+    if (idUser === urlDatabase[key].userID) {
+      results[key] = urlDatabase[key];
+    }
+  }
+  return results;
+}
 
 // Getting Cookies
 app.get("/urls", (req, res) => {
   const idUser = req.session.user_id;
-  const templateVars = { urls: urlDatabase, user: usersDatabase[idUser] };
+  const templateVars = { urls: urlsUser(idUser), user: usersDatabase[idUser] };
+  const user = usersDatabase[idUser];
+  if (!user) { res.redirect("/login")};
   res.render("urls_index", templateVars);
 });
 
 //Creating URL
 
 app.get("/urls/new", (req, res) => {
-  const idUser = Number(req.session.user_id);
+  const idUser = req.session.user_id;
   const user = usersDatabase[idUser];
+  if (!user) { res.redirect("/login")};
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 
 app.post("/urls", (req, res) => {
+  const idUser = req.session.user_id;
   const newId = generateRandomString();
-  urlDatabase[newId] = req.body.longURL;
+  urlDatabase[newId] = { "longURL" : req.body.longURL , "userID" : idUser};
+  // console.log(["longURL", req.body.longURL]);
+  if (req.body.longURL === '') {
+    return res.send("Please enter valid URL!");
+  }
   res.redirect("/urls");
 });
 
 // Editing URL
 
 app.get("/urls/:id", (req, res) => {
-  const idUser = Number(req.session.user_id);
-  const user = usersDatabase[idUser];
-  const templateVars = { 
-    id: req.params.id, 
-    longURL: urlDatabase[req.params.id], 
-    user 
+  const session_user_id = req.session["user_id"];
+
+  // the if block of code is working as required ============================================================
+  if (session_user_id == null) {
+    return res.redirect("/login");
+  }
+  const shortUrl = req.params.id;
+  const user = usersDatabase[`${session_user_id}`];
+  const templateVars = {
+    user: user,
+    id: shortUrl,
+    longURL: urlDatabase[shortUrl].longURL
   };
-  res.render("urls_show", templateVars);
+  res.status(200).render("urls_show", templateVars); 
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  const idUser = req.session.user_id;
+  urlDatabase[req.params.id] = { "longURL" : req.body.longURL , "userID" : idUser};
+  if (req.body.longURL === '') {
+    return res.send("Please enter valid URL!");
+  }
   res.redirect("/urls");
 });
 
