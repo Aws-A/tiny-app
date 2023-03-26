@@ -8,4 +8,11 @@ const getUserByEmail = (email, database) => {
     return undefined;
   };
 
-module.exports = { getUserByEmail };
+
+// Creating unique Id
+function generateRandomString() {
+  let r = (Math.random() + 1).toString(36).substring(6);
+  return r;
+}
+
+module.exports = { getUserByEmail, generateRandomString };

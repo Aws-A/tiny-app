@@ -1,4 +1,5 @@
 const { getUserByEmail } = require("./helpers.js");
+const { generateRandomString } = require("./helpers.js");
 const express = require("express");
 const cookieSession = require('cookie-session');
 const { emit } = require("nodemon");
@@ -75,7 +76,6 @@ app.post("/urls", (req, res) => {
   const idUser = req.session.user_id;
   const newId = generateRandomString();
   urlDatabase[newId] = { "longURL" : req.body.longURL , "userID" : idUser};
-  // console.log(["longURL", req.body.longURL]);
   if (req.body.longURL === '') {
     return res.send("Please enter valid URL!");
   }
@@ -130,6 +130,11 @@ app.get('/', (req, res) => {
 
 //Register
 
+app.get("/register", (req, res) => {
+  const templateVars = {user: ""};
+  res.render("register.ejs", templateVars);
+})
+
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
   if (email && password) {
@@ -152,11 +157,6 @@ app.post("/register", (req, res) => {
     return res.send(errorMessage);
   }
 });
-
-app.get("/register", (req, res) => {
-  const templateVars = {user: ""};
-  res.render("register.ejs", templateVars);
-})
 
 //Login
 
@@ -192,20 +192,16 @@ app.post('/sign-out', (req, res) => {
 // Checking exisiting URL
 app.get("/u/:id", (req, res) => {
   const urlId = req.params.id;
-  const longURL = urlDatabase[urlId];
+  const longURL = urlDatabase[urlId].longURL;
+  console.log("LongURL",longURL);
+  console.log("ID",urlId);
   if (longURL) {
   res.redirect(longURL);
   } else {
-    res.send("In your dream!");
+    res.send("URL doesn't exist!");
   }
 });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-// Creating unique Id
-function generateRandomString() {
-  let r = (Math.random() + 1).toString(36).substring(6);
-  return r;
-}
