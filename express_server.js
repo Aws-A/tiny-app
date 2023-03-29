@@ -36,10 +36,6 @@ app.get("/", function(req,res){
   }
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
 //Function that will accept a userId and then it actually goes through
 // all the urls and then create a resultant object with urls belonging to that user
 const urlsUser = function (idUser) {
@@ -55,6 +51,9 @@ const urlsUser = function (idUser) {
 // Getting Cookies
 app.get("/urls", (req, res) => {
   const idUser = req.session.user_id;
+  if (!idUser) {
+    return res.send("You are not logged in")
+  }
   const templateVars = { urls: urlsUser(idUser), user: usersDatabase[idUser] };
   const user = usersDatabase[idUser];
   if (!user) { res.redirect("/login")};
@@ -79,7 +78,7 @@ app.post("/urls", (req, res) => {
   if (req.body.longURL === '') {
     return res.send("Please enter valid URL!");
   }
-  res.redirect("/urls");
+  res.redirect(`/urls/${newId}`);
 });
 
 // Editing URL
@@ -88,9 +87,19 @@ app.get("/urls/:id", (req, res) => {
   const session_user_id = req.session["user_id"];
 
   // the if block of code is working as required ============================================================
-  if (session_user_id == null) {
-    return res.redirect("/login");
+  if (!session_user_id) {
+   return res.send("You need to login")
   }
+
+  if (!urlDatabase[req.params.id]) {
+    return res.send("This shorturl does not exist")
+  }
+
+  if (urlDatabase[req.params.id].userID !==  session_user_id) {
+    return res.send("You don't own this url")
+  }
+
+
   const shortUrl = req.params.id;
   const user = usersDatabase[`${session_user_id}`];
   const templateVars = {
@@ -103,6 +112,19 @@ app.get("/urls/:id", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const idUser = req.session.user_id;
+
+  if (!idUser) {
+    return res.send("You need to login")
+   }
+ 
+   if (!urlDatabase[req.params.id]) {
+     return res.send("This shorturl does not exist")
+   }
+ 
+   if (urlDatabase[req.params.id].userID !==  idUser) {
+     return res.send("You don't own this url")
+   }
+
   urlDatabase[req.params.id] = { "longURL" : req.body.longURL , "userID" : idUser};
   if (req.body.longURL === '') {
     return res.send("Please enter valid URL!");
@@ -112,6 +134,20 @@ app.post("/urls/:id", (req, res) => {
 
 //Delete URL
 app.post("/urls/:id/delete", (req, res) => {
+  const idUser = req.session.user_id;
+
+  if (!idUser) {
+    return res.send("You need to login")
+   }
+ 
+   if (!urlDatabase[req.params.id]) {
+     return res.send("This shorturl does not exist")
+   }
+ 
+   if (urlDatabase[req.params.id].userID !==  idUser) {
+     return res.send("You don't own this url")
+   }
+
   delete urlDatabase[req.params.id];
   res.redirect("/urls"); 
 });
@@ -193,8 +229,7 @@ app.post('/sign-out', (req, res) => {
 app.get("/u/:id", (req, res) => {
   const urlId = req.params.id;
   const longURL = urlDatabase[urlId].longURL;
-  console.log("LongURL",longURL);
-  console.log("ID",urlId);
+  
   if (longURL) {
   res.redirect(longURL);
   } else {
