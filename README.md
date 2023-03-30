@@ -4,11 +4,11 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
-!["screenshot description"](https://github.com/Aws-star/tiny-app/blob/main/register.png)
-!["screenshot description"](https://github.com/Aws-star/tiny-app/blob/main/logIn.png)
-!["screenshot description"](https://github.com/Aws-star/tiny-app/blob/main/createURL.png)
-!["screenshot description"](https://github.com/Aws-star/tiny-app/blob/main/URLS_page.png)
-!["screenshot description"](https://github.com/Aws-star/tiny-app/blob/main/editURL.png)
+!["Register Page"](https://github.com/Aws-star/tiny-app/blob/main/register.png)
+!["Log In Page"](https://github.com/Aws-star/tiny-app/blob/main/logIn.png)
+!["Create URL Page"](https://github.com/Aws-star/tiny-app/blob/main/createURL.png)
+!["URLS Page"](https://github.com/Aws-star/tiny-app/blob/main/URLS_page.png)
+!["Editing Page"](https://github.com/Aws-star/tiny-app/blob/main/editURL.png)
 
 ## Dependencies
 
